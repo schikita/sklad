@@ -1,0 +1,117 @@
+{
+  "spreadsheets": {
+    "counterparties": {
+      "title": "Контрагенты РемМонтаж",
+      "id": "1PBYZcU1TNnkeYfueQLoNDOY0Owou6crqEEIsSVhSKZg",
+      "url": "https://docs.google.com/spreadsheets/d/1PBYZcU1TNnkeYfueQLoNDOY0Owou6crqEEIsSVhSKZg/edit",
+      "columns": [
+        "Контрагенты",
+        "Дополнительная информация",
+        "Контакты бухгалтерии",
+        "Контакты с пометкой",
+        "Договор",
+        "Документы",
+        "Инструкции по контрагентам",
+        "Исходящие письма"
+      ]
+    },
+    "cash": {
+      "title": "РемМонтаж Движение ДС",
+      "id": "1SlIUkncDyrhpvs7FPmtWY6zvX684nbiO-s0bVrzFOGQ",
+      "url": "https://docs.google.com/spreadsheets/d/1SlIUkncDyrhpvs7FPmtWY6zvX684nbiO-s0bVrzFOGQ/edit",
+      "month_sheets": ["Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+      "flat_columns": [
+        "Дата",
+        "Организация",
+        "Контрагент",
+        "Поступление",
+        "Списание",
+        "Валюта",
+        "Документ",
+        "Ссылка"
+      ]
+    },
+    "hr": {
+      "title": "Кадры ООО РемМонтаж",
+      "id": "1Dy844ebEUk-H-MYeKTQpWN6Wsh-UIT05HaoxtfABSh8",
+      "url": "https://docs.google.com/spreadsheets/d/1Dy844ebEUk-H-MYeKTQpWN6Wsh-UIT05HaoxtfABSh8/edit",
+      "note": "МойСклад не хранит кадровые сканы. Ссылки ставятся только из Google Диска."
+    }
+  },
+  "local_books": {
+    "counterparties": "книги/Контрагенты РемМонтаж.xlsx",
+    "cash": "книги/РемМонтаж Движение ДС.xlsx",
+    "hr": "книги/Кадры ООО РемМонтаж.xlsx",
+    "products": "книги/Товары РемМонтаж.xlsx"
+  },
+  "client_book": {
+    "title": "Русугленефтегаз Контрагенты-накладные",
+    "id": "1s9Dx7eiCx9gsFeVAlqIEGN2pIgdDqqHBjnldKnXquIs",
+    "url": "https://docs.google.com/spreadsheets/d/1s9Dx7eiCx9gsFeVAlqIEGN2pIgdDqqHBjnldKnXquIs/edit",
+    "sheets": ["Контрагенты", "Накладные 2026г"],
+    "note": "Исходная книга клиента. Робот только читает её."
+  },
+  "registry": {
+    "title": "Мастер-реестр РемМонтаж",
+    "id": "1sjnqaU4-uJD_kjFwZWjnofPd25vQjtCqstktGWhXbe8",
+    "url": "https://docs.google.com/spreadsheets/d/1sjnqaU4-uJD_kjFwZWjnofPd25vQjtCqstktGWhXbe8/edit",
+    "script": "https://script.google.com/u/0/home/projects/1filQcJ57U7dOq-bmQO0712WdMDUz4YtAomRncw9XprNGi-4PY3Cqb1mf/edit",
+    "console": "https://script.google.com/macros/s/AKfycbyrI9lD_y0La2LAlkWhrR0cra0V4yZSG6zeRDK72NFLlQYRrtsirsUhARjVqVBQTDDscw/exec",
+    "franchise": "FR-001",
+    "ads_customer_id": "868-944-6535",
+    "gcp_project": "remmontazh-eu",
+    "looker": "https://datastudio.google.com/reporting/02d07e4d-d231-4bf9-9f8e-fc2c3c615e43"
+  },
+  "looker": {
+    "title": "Отчет без названия",
+    "id": "02d07e4d-d231-4bf9-9f8e-fc2c3c615e43",
+    "edit": "https://datastudio.google.com/reporting/02d07e4d-d231-4bf9-9f8e-fc2c3c615e43/page/TlJ0C/edit",
+    "url": "https://datastudio.google.com/reporting/02d07e4d-d231-4bf9-9f8e-fc2c3c615e43",
+    "source": "Мастер-реестр РемМонтаж / Витрина",
+    "access": "restricted",
+    "owner": "alexsklad083@gmail.com"
+  },
+  "gcp": {
+    "project_id": "remmontazh-eu",
+    "project_number": "908335923939",
+    "project_name": "remmontazh",
+    "region": "EU",
+    "billing": false,
+    "sandbox": true,
+    "datasets": ["raw_data", "analytics"],
+    "url": "https://console.cloud.google.com/bigquery?project=remmontazh-eu",
+    "ads_transfer": {
+      "saved": false,
+      "display_name": "ads-spend",
+      "dataset": "raw_data",
+      "customer_id": "8689446535",
+      "schedule_hours": 24,
+      "blocker": "Google asked to create a passkey before granting Ads access. Passkey was not created. Billing was not enabled."
+    }
+  },
+  "ads": {
+    "customer_id": "868-944-6535",
+    "email": "alexsklad083@gmail.com",
+    "currency": "USD",
+    "country": "BY",
+    "timezone": "Europe/Minsk",
+    "campaign": false,
+    "card": false,
+    "url": "https://ads.google.com/aw/overview?ocid=8619077030"
+  },
+  "products": {
+    "title": "Товары РемМонтаж",
+    "id": "1mMZlLOu9XP2BTzs_frWq6uAKzoqC_TC3bBJ1JmWzlyY",
+    "url": "https://docs.google.com/spreadsheets/d/1mMZlLOu9XP2BTzs_frWq6uAKzoqC_TC3bBJ1JmWzlyY/edit"
+  },
+  "products_sheet_columns": [
+    "Наименование",
+    "Артикул",
+    "Группа",
+    "Цена",
+    "Единица",
+    "Описание",
+    "Ссылка",
+    "Штрихкод"
+  ]
+}

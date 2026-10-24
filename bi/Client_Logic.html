@@ -1,0 +1,347 @@
+<script>
+var state = { sources: [], summary: {}, journal: [], dictionary: [] };
+var selected = "all";
+var tab = "analytics";
+
+function fail(err) {
+  var box = document.getElementById("status");
+  box.textContent = err && err.message ? err.message : String(err);
+}
+
+function call(name, args, done) {
+  var run = google.script.run.withSuccessHandler(done).withFailureHandler(fail);
+  if (args === undefined) run[name]();
+  else run[name](args);
+}
+
+function load() {
+  call("apiState", undefined, function (data) {
+    state = data;
+    document.getElementById("status").textContent = "";
+    drawList();
+    draw();
+  });
+}
+
+function visibleSources() {
+  var q = document.getElementById("q").value.toLowerCase();
+  return state.sources.filter(function (src) {
+    if (lockedFranchise && src.franchise !== lockedFranchise) return false;
+    if (src.franchiseStatus === "ОТКЛЮЧЕН") return false;
+    if (!q) return true;
+    return (src.name + " " + src.sheet + " " + src.franchise).toLowerCase().indexOf(q) >= 0;
+  });
+}
+
+function drawList() {
+  var box = document.getElementById("list");
+  box.innerHTML = "";
+  visibleSources().forEach(function (src) {
+    var btn = document.createElement("button");
+    btn.className = "item" + (selected === src.sheetRow ? " active" : "");
+    var dot = document.createElement("span");
+    dot.className = "dot";
+    if (src.status !== "Включать") dot.className += " off";
+    if (src.franchiseStatus === "ЗАБЛОКИРОВАН") dot.className += " block";
+    btn.appendChild(dot);
+    var label = document.createElement("span");
+    label.textContent = src.name;
+    btn.appendChild(label);
+    btn.onclick = function () {
+      selected = src.sheetRow;
+      drawList();
+      draw();
+    };
+    box.appendChild(btn);
+  });
+}
+
+function current() {
+  var all = state.sources;
+  for (var i = 0; i < all.length; i++) if (all[i].sheetRow === selected) return all[i];
+  return null;
+}
+
+function setTab(name) {
+  tab = name;
+  draw();
+}
+
+function draw() {
+  document.querySelectorAll(".tabs button").forEach(function (btn) {
+    btn.className = btn.getAttribute("data-tab") === tab ? "on" : "";
+  });
+  document.getElementById("pin").className = "pin" + (selected === "all" ? " active" : "");
+  var root = document.getElementById("view");
+  root.innerHTML = "";
+  if (tab === "journal") return drawJournal(root);
+  if (tab === "dictionary") return drawDictionary(root);
+  if (selected === "all") return drawSummary(root);
+  var src = current();
+  if (!src) {
+    root.textContent = "Выберите источник слева.";
+    return;
+  }
+  if (tab === "manage") drawManage(root, src);
+  else if (tab === "edit") drawRows(root, src);
+  else drawAnalytics(root, src);
+}
+
+function adsSpendLabel() {
+  return state.adsCustomerId ? "0,00" : "нет кабинета";
+}
+
+function drawSummary(root) {
+  var s = state.summary || {};
+  root.appendChild(cards([
+    ["Строк в своде", s.rows || 0],
+    ["Поступления", money(s.moneyIn)],
+    ["Списания", money(s.moneyOut)],
+    ["Расход Google Ads", adsSpendLabel()],
+    ["Прибыль до себестоимости", money(s.moneyIn || 0)]
+  ]));
+  var p = document.createElement("p");
+  p.className = "muted";
+  p.textContent = state.adsCustomerId
+    ? "Кабинет Google Ads " + state.adsCustomerId + ". Google назначил валюту USD и пояс Europe/Minsk, кампаний и карты нет. Расход 0: выгрузка в BigQuery ещё не подключена."
+    : "Сводка считает только источники со статусом «Включать». Реклама появится после Customer ID и выгрузки BigQuery.";
+  root.appendChild(p);
+}
+
+function drawAnalytics(root, src) {
+  call("apiSourceStats", { sheetRow: src.sheetRow }, function (stats) {
+    root.appendChild(cards([
+      ["Строк", stats.rows || 0],
+      ["Поступления", money(stats.moneyIn)],
+      ["Списания", money(stats.moneyOut)],
+      ["Расход Google Ads", adsSpendLabel()]
+    ]));
+  });
+}
+
+function cards(pairs) {
+  var wrap = document.createElement("div");
+  wrap.className = "cards";
+  pairs.forEach(function (pair) {
+    var card = document.createElement("div");
+    card.className = "card";
+    var t = document.createElement("span");
+    t.className = "muted";
+    t.textContent = pair[0];
+    var b = document.createElement("b");
+    b.textContent = pair[1];
+    card.appendChild(t);
+    card.appendChild(b);
+    wrap.appendChild(card);
+  });
+  return wrap;
+}
+
+function money(value) {
+  var n = Number(value || 0);
+  return n.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function drawManage(root, src) {
+  var h = document.createElement("h2");
+  h.textContent = src.name;
+  root.appendChild(h);
+  var form = document.createElement("div");
+  form.className = "rowform";
+  if (!src.virtual) {
+    var status = document.createElement("select");
+    ["Включать", "Исключить"].forEach(function (name) {
+      var opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      if (src.status === name) opt.selected = true;
+      status.appendChild(opt);
+    });
+    status.onchange = function () {
+      call("apiSetSourceStatus", { sheetRow: src.sheetRow, status: status.value }, load);
+    };
+    form.appendChild(status);
+  }
+  var franchise = document.createElement("select");
+  ["АКТИВЕН", "ЗАБЛОКИРОВАН", "ОТКЛЮЧЕН"].forEach(function (name) {
+    var opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    if (src.franchiseStatus === name) opt.selected = true;
+    franchise.appendChild(opt);
+  });
+  franchise.onchange = function () {
+    call("apiSetFranchiseStatus", { franchise: src.franchise, status: franchise.value }, load);
+  };
+  form.appendChild(franchise);
+  var sync = document.createElement("button");
+  sync.textContent = "Синхронизировать сейчас";
+  sync.onclick = function () {
+    document.getElementById("status").textContent = "Сбор…";
+    call("apiSyncOne", { sheetRow: src.sheetRow }, load);
+  };
+  form.appendChild(sync);
+  root.appendChild(form);
+  var meta = document.createElement("p");
+  meta.className = "muted";
+  meta.textContent = "Франшиза " + src.franchise + " · " + src.franchiseStatus + " · лист «" + src.sheet + "»";
+  root.appendChild(meta);
+  if (src.url) {
+    var a = document.createElement("a");
+    a.href = src.url;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = "Открыть таблицу";
+    root.appendChild(a);
+  }
+}
+
+function drawRows(root, src) {
+  call("apiRows", { sheetRow: src.sheetRow }, function (rows) {
+    if (!rows.length) {
+      root.textContent = "Строк нет. Нажмите «Синхронизировать сейчас» на вкладке «Управление».";
+      return;
+    }
+    var table = document.createElement("table");
+    var head = document.createElement("tr");
+    ["Имя", "Дата", "Поступление", "Списание", "Ссылка"].forEach(function (name) {
+      var th = document.createElement("th");
+      th.textContent = name;
+      head.appendChild(th);
+    });
+    table.appendChild(head);
+    rows.forEach(function (row) {
+      var tr = document.createElement("tr");
+      tr.appendChild(cell(row.name));
+      tr.appendChild(cell(row.report_date));
+      tr.appendChild(editCell(row, "money_in"));
+      tr.appendChild(editCell(row, "money_out"));
+      var link = document.createElement("td");
+      if (row.link) {
+        var a = document.createElement("a");
+        a.href = row.link;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.textContent = "Открыть";
+        link.appendChild(a);
+      }
+      tr.appendChild(link);
+      table.appendChild(tr);
+    });
+    root.appendChild(table);
+    var note = document.createElement("p");
+    note.className = "muted";
+    note.textContent = "Двойной щелчок по сумме пишет правку в реестр. Исходная таблица сотрудника не меняется, следующий сбор правку не затирает.";
+    root.appendChild(note);
+  });
+}
+
+function cell(value) {
+  var td = document.createElement("td");
+  td.textContent = value || "";
+  return td;
+}
+
+function editCell(row, field) {
+  var td = document.createElement("td");
+  td.textContent = row[field] === "" || row[field] === null || row[field] === undefined ? "" : row[field];
+  td.title = "Двойной щелчок";
+  td.ondblclick = function () {
+    var input = document.createElement("input");
+    input.value = td.textContent;
+    td.textContent = "";
+    td.appendChild(input);
+    input.focus();
+    input.onblur = function () {
+      call("apiSaveCorrection", {
+        key: row.key,
+        field: field,
+        value: input.value,
+        vitrinaRow: row.vitrinaRow
+      }, function () { load(); });
+    };
+    input.onkeydown = function (event) {
+      if (event.key === "Enter") input.blur();
+    };
+  };
+  return td;
+}
+
+function drawDictionary(root) {
+  var table = document.createElement("table");
+  var head = document.createElement("tr");
+  ["Заголовок в таблице", "Поле хранилища", "Тип"].forEach(function (name) {
+    var th = document.createElement("th");
+    th.textContent = name;
+    head.appendChild(th);
+  });
+  table.appendChild(head);
+  (state.dictionary || []).forEach(function (row) {
+    var tr = document.createElement("tr");
+    tr.appendChild(cell(row.header));
+    tr.appendChild(cell(row.field));
+    tr.appendChild(cell(row.type));
+    table.appendChild(tr);
+  });
+  root.appendChild(table);
+  var form = document.createElement("div");
+  form.className = "rowform";
+  var header = document.createElement("input");
+  header.placeholder = "Новый заголовок";
+  var field = document.createElement("input");
+  field.placeholder = "Поле: name, money_in, link…";
+  var type = document.createElement("select");
+  ["text", "number", "money", "date", "link"].forEach(function (name) {
+    var opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    type.appendChild(opt);
+  });
+  var save = document.createElement("button");
+  save.textContent = "Добавить в словарь";
+  save.onclick = function () {
+    call("apiAddMap", { header: header.value, field: field.value, type: type.value }, load);
+  };
+  form.appendChild(header);
+  form.appendChild(field);
+  form.appendChild(type);
+  form.appendChild(save);
+  root.appendChild(form);
+}
+
+function drawJournal(root) {
+  var table = document.createElement("table");
+  (state.journal || []).forEach(function (row) {
+    var tr = document.createElement("tr");
+    [row.time, row.level, row.source, row.message].forEach(function (value) {
+      tr.appendChild(cell(value));
+    });
+    table.appendChild(tr);
+  });
+  root.appendChild(table);
+}
+
+function showAdd(on) {
+  document.getElementById("add").style.display = on ? "flex" : "none";
+}
+
+function addSource() {
+  call("apiAddSource", {
+    name: document.getElementById("addName").value,
+    url: document.getElementById("addUrl").value,
+    sheet: document.getElementById("addSheet").value
+  }, function () {
+    showAdd(false);
+    load();
+  });
+}
+
+document.getElementById("q").oninput = function () { drawList(); };
+document.getElementById("pin").onclick = function () { selected = "all"; drawList(); draw(); };
+document.getElementById("addBtn").onclick = function () { showAdd(true); };
+document.getElementById("addGo").onclick = addSource;
+document.querySelectorAll(".tabs button").forEach(function (btn) {
+  btn.onclick = function () { setTab(btn.getAttribute("data-tab")); };
+});
+load();
+</script>

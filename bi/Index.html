@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Пульт РемМонтаж</title>
+  <?!= include('Styles'); ?>
+</head>
+<body>
+  <aside>
+    <div class="brand">РемМонтаж</div>
+    <div class="tools">
+      <input id="q" type="search" placeholder="Поиск источника">
+      <button id="addBtn" type="button">Добавить источник</button>
+      <div id="add" class="rowform" style="display:none">
+        <input id="addName" placeholder="Имя или филиал">
+        <input id="addUrl" placeholder="Ссылка на таблицу">
+        <input id="addSheet" placeholder="Имя листа">
+        <button id="addGo" type="button">В реестр</button>
+      </div>
+    </div>
+    <button id="pin" class="pin" type="button">Сводная аналитика</button>
+    <div id="list" class="list"></div>
+  </aside>
+  <main>
+    <header class="top">
+      <div id="status" class="warn"></div>
+      <div class="tabs">
+        <button type="button" data-tab="analytics">Аналитика</button>
+        <button type="button" data-tab="manage">Управление</button>
+        <button type="button" data-tab="edit">Корректировка</button>
+        <button type="button" data-tab="dictionary">Словарь полей</button>
+        <button type="button" data-tab="journal">Журнал</button>
+      </div>
+    </header>
+    <div id="view" class="view"></div>
+  </main>
+  <script>
+    var lockedFranchise = '<?= franchise ?>';
+  </script>
+  <?!= include('Client_Logic'); ?>
+</body>
+</html>

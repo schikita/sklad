@@ -1,0 +1,80 @@
+<style>
+  :root {
+    --bg: #0e1621;
+    --side: #17212b;
+    --card: #1c2733;
+    --line: #0b1218;
+    --text: #f2f4f7;
+    --muted: #8b9bb4;
+    --accent: #2b5278;
+    --green: #4fae4e;
+    --red: #e15a5a;
+    --amber: #e0b15a;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: flex;
+    font: 14px/1.45 "Segoe UI", Arial, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+  }
+  aside {
+    width: 25%;
+    min-width: 240px;
+    max-width: 360px;
+    background: var(--side);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+  }
+  .brand { padding: 16px 16px 8px; font-weight: 600; }
+  .tools { padding: 0 12px 8px; display: flex; flex-direction: column; gap: 8px; }
+  input, select, button, textarea {
+    font: inherit;
+    color: var(--text);
+    background: #0e1621;
+    border: 1px solid #2a3b4d;
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  button { cursor: pointer; background: var(--accent); border-color: transparent; }
+  button.ghost { background: transparent; border-color: #2a3b4d; }
+  .pin, .item {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    text-align: left;
+    width: 100%;
+  }
+  .pin { color: var(--amber); font-weight: 600; }
+  .item.active, .pin.active { background: #2b5278; }
+  .list { overflow: auto; flex: 1; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex: none; }
+  .dot.off { background: var(--red); }
+  .dot.block { background: var(--amber); }
+  main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  header.top { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .tabs { display: flex; gap: 6px; padding: 8px 16px; flex-wrap: wrap; }
+  .tabs button { background: transparent; border-color: transparent; color: var(--muted); }
+  .tabs button.on { background: var(--card); color: var(--text); }
+  .view { padding: 8px 16px 24px; overflow: auto; }
+  .cards { display: flex; gap: 12px; flex-wrap: wrap; }
+  .card { background: var(--card); border-radius: 12px; padding: 14px 16px; min-width: 140px; }
+  .card b { display: block; font-size: 22px; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 8px; border-bottom: 1px solid #243242; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  .muted { color: var(--muted); }
+  .rowform { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 12px; }
+  .warn { color: var(--amber); }
+  a { color: #7eb6ff; }
+  @media (max-width: 800px) {
+    body { flex-direction: column; }
+    aside { width: 100%; max-width: none; max-height: 42vh; }
+  }
+</style>
